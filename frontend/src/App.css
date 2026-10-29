@@ -1,0 +1,53 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  background: #f4efe6;
+  color: #1f1b16;
+}
+
+.page {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem;
+}
+
+h1 {
+  margin: 0 0 0.35rem;
+  font-size: 2rem;
+}
+
+.lede {
+  margin: 0 0 1.5rem;
+  color: #5c5348;
+}
+
+.roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #d8cfc3;
+}
+
+.roster li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #d8cfc3;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.year {
+  color: #5c5348;
+}
+
+.error {
+  color: #8a1f11;
+}

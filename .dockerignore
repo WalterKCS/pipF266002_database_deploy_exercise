@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+venv
+.venv
+__pycache__
+*.pyc
+node_modules
+frontend/node_modules
+frontend/dist
+*.md
+.cursor
+data
+class_dataset.csv
