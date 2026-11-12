@@ -1,4 +1,4 @@
-"""Flask API: class roster from Railway Postgres."""
+"""Flask app: class roster from Railway Postgres, plus a single HTML page."""
 
 import os
 from pathlib import Path
@@ -6,27 +6,39 @@ from pathlib import Path
 import psycopg2
 from dotenv import load_dotenv
 from flask import Flask, jsonify, send_from_directory
-from flask_cors import CORS
 
 ROOT = Path(__file__).resolve().parent
-DIST = ROOT / "frontend" / "dist"
+FRONTEND = ROOT / "frontend"
 
 load_dotenv(ROOT / ".env")
 
 app = Flask(__name__)
-CORS(app)
 
 
 def get_connection():
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL is not set")
-    return psycopg2.connect(database_url)
+    if "sslmode=" not in database_url:
+        joiner = "&" if "?" in database_url else "?"
+        database_url = f"{database_url}{joiner}sslmode=require"
+    return psycopg2.connect(database_url, connect_timeout=10)
 
 
 @app.get("/api/students")
 def list_students():
-    conn = get_connection()
+    try:
+        conn = get_connection()
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 503
+    except Exception:
+        return jsonify({
+            "error": (
+                "Could not connect to the database. "
+                "On the web service, set DATABASE_URL to the Postgres private URL."
+            )
+        }), 503
+
     try:
         with conn.cursor() as cur:
             cur.execute(
@@ -47,15 +59,7 @@ def list_students():
 
 @app.get("/")
 def index():
-    return send_from_directory(DIST, "index.html")
-
-
-@app.get("/<path:path>")
-def static_file(path):
-    file_path = DIST / path
-    if file_path.is_file():
-        return send_from_directory(DIST, path)
-    return send_from_directory(DIST, "index.html")
+    return send_from_directory(FRONTEND, "index.html")
 
 
 if __name__ == "__main__":

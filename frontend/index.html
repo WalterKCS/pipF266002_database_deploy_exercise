@@ -4,9 +4,77 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Class roster</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background: #f4efe6;
+        color: #1f1b16;
+      }
+      main {
+        max-width: 36rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem;
+      }
+      h1 { margin: 0 0 0.35rem; font-size: 2rem; }
+      .lede { margin: 0 0 1.5rem; color: #5c5348; }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid #d8cfc3;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #d8cfc3;
+      }
+      .name { font-weight: 600; }
+      .year { color: #5c5348; }
+      .error { color: #8a1f11; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <main>
+      <h1>Class roster</h1>
+      <p class="lede">Names loaded from the class intake database.</p>
+      <p id="status">Loading…</p>
+      <ul id="roster"></ul>
+    </main>
+    <script>
+      const statusEl = document.getElementById("status");
+      const rosterEl = document.getElementById("roster");
+
+      fetch("/api/students")
+        .then(async (response) => {
+          const data = await response.json().catch(() => null);
+          if (!response.ok) {
+            const message =
+              data && data.error
+                ? data.error
+                : "Could not load students from the database";
+            throw new Error(message);
+          }
+          return data;
+        })
+        .then((students) => {
+          statusEl.remove();
+          students.forEach((student) => {
+            const item = document.createElement("li");
+            item.innerHTML =
+              '<span class="name"></span><span class="year"></span>';
+            item.querySelector(".name").textContent = student.name;
+            item.querySelector(".year").textContent = student.school_year;
+            rosterEl.appendChild(item);
+          });
+        })
+        .catch((err) => {
+          statusEl.className = "error";
+          statusEl.textContent = err.message;
+        });
+    </script>
   </body>
 </html>
